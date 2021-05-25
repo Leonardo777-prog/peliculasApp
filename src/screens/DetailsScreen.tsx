@@ -9,6 +9,9 @@ import {
 } from 'react-native';
 import {StackScreenProps} from '@react-navigation/stack';
 import {RootStackParams} from '../navigation/StackNavigarion';
+import {useMovieDetails} from '../hooks/useMovieDetails';
+import {Spinner} from '../components/Spinner';
+import {MovieDetails} from '../components/MovieDetails';
 
 interface Props extends StackScreenProps<RootStackParams, 'DetailScreen'> {}
 
@@ -18,6 +21,7 @@ export const DetailScreen = ({route}: Props) => {
   const movie = route.params;
   const {poster_path} = movie;
   const uri = `https://image.tmdb.org/t/p/w500${poster_path}`;
+  const {isLoading, movieFull, cast} = useMovieDetails(movie.id);
 
   return (
     <ScrollView>
@@ -33,6 +37,11 @@ export const DetailScreen = ({route}: Props) => {
         <Text style={styles.subTitle}>{movie.original_title}</Text>
         <Text style={styles.title}>{movie.title}</Text>
       </View>
+      {isLoading ? (
+        <Spinner />
+      ) : (
+        <MovieDetails moveFull={movieFull!} cast={cast} />
+      )}
     </ScrollView>
   );
 };
