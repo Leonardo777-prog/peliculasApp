@@ -1,9 +1,10 @@
-import React from 'react';
+import React, {useContext, useEffect} from 'react';
 import {View, Dimensions, StyleSheet} from 'react-native';
 import Carousel from 'react-native-snap-carousel';
 import {MoviePoster} from './MoviePoster';
 import {Movie} from '../interfaces/movieInterface';
-
+import {getImageColors} from '../helpers/getColores';
+import {GradientContext} from '../contexts/GradientContext';
 interface Props {
   movies: Movie[];
 }
@@ -15,6 +16,22 @@ type PropsRenderCarousel = {
 
 export const CarouselMovies = ({movies}: Props) => {
   const {width: windowsWidt} = Dimensions.get('window');
+
+  const {setColorsImage} = useContext(GradientContext);
+
+  const getPosterColors = async (index: number) => {
+    const id = movies[index]?.id.toString();
+    const uri = `https://image.tmdb.org/t/p/w500${movies[index]?.poster_path}`;
+    const [primary, secondary] = await getImageColors(uri);
+    setColorsImage({primary, secondary});
+  };
+
+  useEffect(() => {
+    if (movies.length > 0) {
+      getPosterColors(0);
+    }
+  }, []);
+
   return (
     <Carousel
       data={movies}
@@ -25,6 +42,7 @@ export const CarouselMovies = ({movies}: Props) => {
       )}
       sliderWidth={windowsWidt}
       itemWidth={300}
+      onSnapToItem={index => getPosterColors(index)}
     />
   );
 };
